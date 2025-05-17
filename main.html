@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MathQuiz</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Neucha&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="start_menu" id="startMenu">
+    <h1>MathQuiz</h1>
+    <button class="start_btn" id="startBtn">Начать игру</button>
+  </div>
+
+  <div class="difficulty_menu" id="difficultyMenu" style="display: none;">
+    <h2>Выберите уровень сложности</h2>
+    <div class="difficulty_buttons">
+      <button class="difficulty_btn easy" data-level="easy">Лёгкий</button>
+      <button class="difficulty_btn medium" data-level="medium">Средний</button>
+      <button class="difficulty_btn hard" data-level="hard">Сложный</button>
+    </div>
+  </div>
+
+  <div class="quiz_container" id="quizContainer" style="display: none;">
+    <div class="header">
+      <div class="score">Очки: <span id="score">0</span></div>
+      <div class="level">Уровень: <span id="levelDisplay">Лёгкий</span></div>
+    </div>
+    <div id="quiz">
+      <div class="question" id="question"></div>
+      <div class="answers" id="answers"></div>
+      <div id="timer">Время: <span id="time">10</span> сек</div>
+    </div>
+    <button class="back_btn" id="backBtn">← Назад в меню</button>
+  </div>
+
+  <script src="questions.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

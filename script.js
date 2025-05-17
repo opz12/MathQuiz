@@ -245,7 +245,7 @@ function checkAnswer(selected, correct) {
       speedBonuses += speedBonus;
       score += points;
     } else {
-      // Неправильный ответ, можно добавить штраф, если нужно
+      // штраф также при неправильном ответе
       score = Math.max(0, score - 5);
     }
 

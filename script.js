@@ -9,7 +9,7 @@ let highScore = localStorage.getItem('mathQuizHighScore') || 0;
 let correctAnswers = 0;
 let totalTimeUsed = 0;
 let speedBonuses = 0;
-let usedFacts = []; // для отслеживания использованных questions
+let usedFacts = []; // для отслеживания использованных mathFacts
 
 
 const startMenu = document.getElementById('startMenu');
@@ -38,7 +38,7 @@ const avgTimeEl = document.getElementById('avgTime');
 const speedBonusEl = document.getElementById('speedBonus');
 const ratingStarsEl = document.getElementById('ratingStars');
 
-// difficulty levels
+// Difficulty levels
 const levels = {
   easy: {
     name: 'Сложная арифметика',
@@ -49,19 +49,20 @@ const levels = {
   },
   medium: {
     name: 'Средний',
-    time: 12,
-    operations: ['+', '-', '*'],
+    time: 25,
+    operations: [], // удалены арифметические операции
     range: [5, 15],
     color: '#FF8F00'
   },
   hard: {
     name: 'Сложный',
-    time: 10,
-    operations: ['+', '-', '*', '/'],
+    time: 30,
+    operations: [], // удалены арифметические операции
     range: [10, 20],
     color: '#7B1FA2'
   }
 };
+
 
 // Initialize
 highScoreEl.textContent = highScore;
@@ -279,9 +280,15 @@ function generateQuestion() {
     }
   }
 
+  if (operations.length === 0) {
+    // Пропускаем генерацию арифметики — только mathFacts
+    generateQuestion(); // Рекурсивный вызов, пока не найдет подходящий факт
+    return;
+  }
+  
   let a, b, correct, questionText;
   const operation = operations[Math.floor(Math.random() * operations.length)];
-
+  
   switch(operation) {
     case '+':
       a = getRandomInt(min, max);

@@ -38,6 +38,8 @@ const avgTimeEl = document.getElementById('avgTime');
 const speedBonusEl = document.getElementById('speedBonus');
 const ratingStarsEl = document.getElementById('ratingStars');
 
+
+
 // Difficulty levels
 const levels = {
   easy: {
@@ -235,6 +237,7 @@ function generateSmartOptions(correct, range) {
   return options.sort(() => Math.random() - 0.5);
 }
 
+
 function generateQuestion() {
   if (questionCount >= maxQuestions) {
     endGame();
@@ -281,10 +284,11 @@ function generateQuestion() {
   }
 
   if (operations.length === 0) {
-    // Пропускаем генерацию арифметики — только mathFacts
+    questionCount--; // отменяем инкремент, т.к. вопрос не сгенерирован
     generateQuestion(); // Рекурсивный вызов, пока не найдет подходящий факт
     return;
   }
+  
   
   let a, b, correct, questionText;
   const operation = operations[Math.floor(Math.random() * operations.length)];
@@ -318,7 +322,8 @@ function generateQuestion() {
 
   const options = generateOptions(correct, range);
   showQuestion(questionText, correct, options);
-}
+} 
+
 
 
 function generateOptions(correct, range) {
@@ -344,20 +349,29 @@ function generateOptions(correct, range) {
 
 function showQuestion(question, correct, options) {
   questionEl.classList.remove('new');
-  void questionEl.offsetWidth; // Trigger reflow
   questionEl.textContent = question;
+  // Принудительный рефлоу перед добавлением класса
+  void questionEl.offsetWidth;
   questionEl.classList.add('new');
 
   answersEl.innerHTML = '';
   options.forEach(option => {
     const btn = document.createElement('button');
     btn.textContent = option;
+    
+    // Добавляем атрибут для текстовых ответов
+    if (typeof correct === 'string' || isNaN(Number(option))) {
+      btn.setAttribute('data-text', 'true');
+      btn.style.whiteSpace = 'normal';
+    }
+    
     btn.onclick = () => checkAnswer(option, correct);
     answersEl.appendChild(btn);
   });
 
   resetTimer();
 }
+
 
 function checkAnswer(selected, correct) {
   const answerTime = levels[currentLevel].time - time;
@@ -368,18 +382,35 @@ function checkAnswer(selected, correct) {
   const buttons = answersEl.querySelectorAll('button');
   buttons.forEach(btn => {
     btn.disabled = true;
-    const btnValue = parseFloat(btn.textContent);
-    if (btnValue === parseFloat(correct)) {
-      btn.classList.add('correct');
-    } else if (parseFloat(selected) === btnValue && btnValue !== parseFloat(correct)) {
-      btn.classList.add('incorrect');
-    }
+    const btnValue = btn.textContent;
+    
+    // Сравниваем как строки для текстовых ответов, как числа - для числовых
+    const isCorrect = !isNaN(correct) 
+      ? parseFloat(btnValue) === parseFloat(correct)
+      : btnValue.trim() === correct.trim();
+
+    const isSelectedWrong = !isNaN(selected)
+      ? parseFloat(selected) === parseFloat(btnValue) && !isCorrect
+      : selected && selected.trim() === btnValue.trim() && !isCorrect;
+
+    requestAnimationFrame(() => {
+      if (isCorrect) {
+        btn.classList.add('correct');
+      } else if (isSelectedWrong) {
+        btn.classList.add('incorrect');
+      }
+    });
   });
 
   setTimeout(() => {
+    // Аналогичное сравнение для подсчета очков
+    const isAnswerCorrect = !isNaN(correct)
+      ? parseFloat(selected) === parseFloat(correct)
+      : selected && selected.trim() === correct.trim();
+
     if (selected === null) {
       score = Math.max(0, score - 5);
-    } else if (parseFloat(selected) === parseFloat(correct)) {
+    } else if (isAnswerCorrect) {
       correctAnswers++;
       let points = levels[currentLevel].time;
       const speedBonus = Math.floor((time / levels[currentLevel].time) * 5);
@@ -392,8 +423,9 @@ function checkAnswer(selected, correct) {
 
     updateScore();
     generateQuestion();
-  }, 1500);
+  }, 1000);
 }
+
 
 function resetTimer() {
   time = levels[currentLevel].time;
@@ -401,6 +433,8 @@ function resetTimer() {
   
   progressBar.innerHTML = `<div class="progress-bar-inner" style="width:100%; background:${levels[currentLevel].color}"></div>`;
   const progressBarInner = progressBar.querySelector('.progress-bar-inner');
+  progressBarInner.style.transition = 'width 1s linear, background 0.3s ease';
+
   
   clearInterval(timerId);
   timerId = setInterval(() => {
